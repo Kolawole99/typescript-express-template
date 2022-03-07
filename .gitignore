@@ -1,0 +1,13 @@
+# Project dependencies
+node_modules/
+
+# Application packages
+package-lock.json
+yarn.lock
+yarn-error.log
+
+# Project generated files and folders
+dist/
+
+# Git files
+*.orig
