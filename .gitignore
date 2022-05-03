@@ -6,8 +6,19 @@ package-lock.json
 yarn.lock
 yarn-error.log
 
-# Project generated files and folders
+# Project properties or generated files and folders
+.env
+.vscode/
+node_modules/
 dist/
 
 # Git files
 *.orig
+
+# Logs and coverage
+.nyc_output/
+coverage/
+logs/
+
+# Documentation
+docs/
