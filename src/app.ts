@@ -1,13 +1,18 @@
-import express, {Request, Response, NextFunction} from 'express';
+import express from 'express';
 
-import appRoutes from './routes/index';
+import ApplicationRoutes from './routes/index';
+
+const { NODE_ENV, PORT, APP_NAME } = process.env;
 
 const app = express();
 
-app.use('/', appRoutes);
-app.use((error: Error, request: Request, response: Response, next: NextFunction) => {
-    response.status(500).json({payload: null, message: error.message})
-})
+app.use('/', ApplicationRoutes);
 
-app.listen(3000);
-
+const APP_PORT: number = parseInt(<string>PORT, 10);
+app.listen(APP_PORT, () => {
+    if (NODE_ENV === 'development') {
+        console.log(`🔥 Development Server is running at http://localhost:${APP_PORT} 👍`);
+    } else {
+        console.log(`😃 ${APP_NAME as string} is LIVE on port ${APP_PORT}. 👍`);
+    }
+});
