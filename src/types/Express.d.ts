@@ -7,11 +7,8 @@ declare global {
         interface Request {
             payload: {
                 status: number;
-                payload: responseBody;
-            };
-            error: {
-                status: number;
-                error: responseBody;
+                error?: responseBody;
+                payload?: responseBody;
             };
         }
     }
