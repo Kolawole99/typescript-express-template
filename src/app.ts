@@ -1,12 +1,12 @@
 import express from 'express';
 
-import AppRoutes from './routes/index';
+import ApplicationRoutes from './routes/index';
 
 const { NODE_ENV, PORT, APP_NAME } = process.env;
 
 const app = express();
 
-app.use('/', AppRoutes);
+app.use('/', ApplicationRoutes);
 
 const APP_PORT: number = parseInt(<string>PORT, 10);
 app.listen(APP_PORT, () => {

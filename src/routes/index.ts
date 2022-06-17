@@ -1,12 +1,27 @@
+/**
+ * This handles all the required Express router configuration for the application.
+ * @module ROUTES
+ */
+
 import { Router, Request, Response, NextFunction } from 'express';
 
-import SampleRouter from './sample';
+import {
+    setupRequest,
+    processRequestSuccessResponse,
+    processRequestErrorResponse,
+} from '../middlewares/http';
+import SampleRouter from './Sample';
 
-const AppRoutes = Router();
+const ApplicationRoutes = Router();
 
-AppRoutes.get('/', (request: Request, response: Response, next: NextFunction) => {
-    response.status(200).json({ payload: 'Application is live and healthy', error: null });
+/** Cross Origin Handling */
+ApplicationRoutes.use(setupRequest);
+ApplicationRoutes.get('/', (request: Request, response: Response, next: NextFunction) => {
+    request.payload = { payload: 'Application is running and healthy', status: 200 };
+    next();
 });
-AppRoutes.use('/sample', SampleRouter);
+ApplicationRoutes.use('/sample', SampleRouter);
+ApplicationRoutes.use(processRequestSuccessResponse);
+ApplicationRoutes.use(processRequestErrorResponse);
 
-export default AppRoutes;
+export default ApplicationRoutes;
