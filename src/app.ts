@@ -6,6 +6,8 @@ const { NODE_ENV, PORT, APP_NAME } = process.env;
 
 const app = express();
 
+app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ extended: true, limit: '5mb', parameterLimit: 200 }));
 app.use('/', ApplicationRoutes);
 
 const APP_PORT: number = parseInt(<string>PORT, 10);

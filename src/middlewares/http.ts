@@ -6,7 +6,10 @@
 import { Request, Response, NextFunction } from 'express';
 
 import Constants from '../utilities/Constants';
-import processResponse, { HTTPVersionNotSupportedError } from '../utilities/HTTPResponses';
+import processResponse, {
+    MethodNotAllowedError,
+    HTTPVersionNotSupportedError,
+} from '../utilities/HTTPResponses';
 
 /**
  *
@@ -29,6 +32,25 @@ function verifyHTTPVersion(request: Request, response: Response, next: NextFunct
 
 /**
  *
+ * This middleware checks to verify that all requests are of the specified methods.
+ * @param {object} request Express request object
+ * @param {object} response Express response object
+ * @param {object} next Express next function
+ */
+function verifyRequestMethod(request: Request, response: Response, next: NextFunction) {
+    if (Constants.AllowedMethods.includes(request.method)) {
+        next();
+    } else {
+        request.payload = processResponse(
+            new MethodNotAllowedError(Constants.HTTPResponse.ClientError)
+        );
+
+        processRequestErrorResponse(request, response, next);
+    }
+}
+
+/**
+ *
  * This middleware pre-formats, sets all request headers and intercept bad requests.
  * @param {object} request Express request object
  * @param {object} response Express response object
@@ -39,11 +61,11 @@ function setupRequest(request: Request, response: Response, next: NextFunction) 
     request.headers['access-control-allow-headers'] = '*';
 
     if (request.method === 'OPTIONS') {
-        request.headers['access-control-allow-methods'] = 'GET, POST, PUT, PATCH, DELETE';
+        request.headers['access-control-allow-methods'] = Constants.AllowedMethods.toString();
         response.status(200).json();
+    } else {
+        next();
     }
-
-    next();
 }
 
 /**
@@ -91,6 +113,7 @@ function processRequestErrorResponse(
 
 export {
     verifyHTTPVersion,
+    verifyRequestMethod,
     setupRequest,
     processRequestSuccessResponse,
     processRequestErrorResponse,
