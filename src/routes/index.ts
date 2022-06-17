@@ -6,6 +6,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 
 import {
+    verifyHTTPVersion,
     setupRequest,
     processRequestSuccessResponse,
     processRequestErrorResponse,
@@ -15,6 +16,7 @@ import SampleRouter from './Sample';
 const ApplicationRoutes = Router();
 
 /** Cross Origin Handling */
+ApplicationRoutes.use(verifyHTTPVersion);
 ApplicationRoutes.use(setupRequest);
 ApplicationRoutes.get('/', (request: Request, response: Response, next: NextFunction) => {
     request.payload = { payload: 'Application is running and healthy', status: 200 };
