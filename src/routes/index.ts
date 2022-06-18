@@ -3,7 +3,7 @@
  * @module ROUTES
  */
 
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router } from 'express';
 
 import {
     verifyHTTPVersion,
@@ -20,7 +20,7 @@ const ApplicationRoutes = Router({ strict: true, caseSensitive: true });
 ApplicationRoutes.use(verifyHTTPVersion);
 ApplicationRoutes.use(verifyRequestMethod);
 ApplicationRoutes.use(setupRequest);
-ApplicationRoutes.get('/', (request: Request, response: Response, next: NextFunction) => {
+ApplicationRoutes.get('/', (request, _response, next) => {
     request.payload = { payload: 'Application is running and healthy', status: 200 };
     next();
 });

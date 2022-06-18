@@ -1,34 +1,37 @@
 import { Router, Request, Response, NextFunction } from 'express';
 
+import SampleService from '../services/sample/Sample';
+
 const SampleRouting = Router();
+// const sampleService = new SampleService();
 
 try {
-    SampleRouting.post('/', async (request: Request, response: Response, next: NextFunction) => {
+    SampleRouting.post('/', async (request, _response, next) => {
         // request.payload = await sampleService.createRecord({ request, next });
         request.payload = { status: 200, payload: 'Post response' };
         next();
     })
-        .get('/', async (request: Request, response: Response, next: NextFunction) => {
+        .get('/', async (request, _response, next) => {
             // request.payload = await sampleService.createRecord({ request, next });
             request.payload = { status: 200, payload: 'Get response' };
             next();
         })
-        .get('/:id', async (request: Request, response: Response, next: NextFunction) => {
+        .get('/:id', async (request, _response, next) => {
             // request.payload = await sampleService.createRecord({ request, next });
             request.payload = { status: 500, payload: 'Get by Id response' };
             next();
         })
-        .put('/:id', async (request: Request, response: Response, next: NextFunction) => {
+        .put('/:id', async (request, _response, next) => {
             // request.payload = await sampleService.createRecord({ request, next });
             request.payload = { status: 201, payload: 'Put response' };
             next();
         })
-        .patch('/:id', async (request: Request, response: Response, next: NextFunction) => {
+        .patch('/:id', async (request, _response, next) => {
             // request.payload = await sampleService.createRecord({ request, next });
             request.payload = { status: 404, payload: 'Patch by id response' };
             next();
         })
-        .delete('/:id', async (request: Request, response: Response, next: NextFunction) => {
+        .delete('/:id', async (request, _response, next) => {
             // request.payload = await sampleService.createRecord({ request, next });
             request.payload = { status: 200, payload: 'Delete response' };
             next();
