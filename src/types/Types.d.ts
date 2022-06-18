@@ -1,6 +1,6 @@
 import Express from 'express';
 
-import { BaseController } from '../controllers/index';
+import BaseController from '../controllers/index';
 
 declare global {
     type Request = Express.Request;
