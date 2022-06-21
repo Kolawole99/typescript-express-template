@@ -21,7 +21,11 @@ ApplicationRoutes.use(verifyHTTPVersion);
 ApplicationRoutes.use(verifyRequestMethod);
 ApplicationRoutes.use(setupRequest);
 ApplicationRoutes.get('/', (request, _response, next) => {
-    request.payload = { payload: 'Application is running and healthy', status: 200 };
+    request.payload = {
+        payload: 'Application is running and healthy',
+        status: 200,
+        text: 'Success',
+    };
     next();
 });
 ApplicationRoutes.use('/sample', SampleRouter);
