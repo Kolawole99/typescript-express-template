@@ -1,4 +1,5 @@
 // Import the node-oracledb package
+// This does not work for Arm64, I am on an M1 Macbook Pro
 
 class OracleController implements DBController {
     constructor() {}
