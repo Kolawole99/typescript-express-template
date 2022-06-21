@@ -74,38 +74,30 @@ function setupRequest(request: Request, response: Response, next: NextFunction) 
  * @param {object} request Express request object
  * @param {object} response Express response object
  * @param {object} next Express next function
- * @returns {object} Express response object, formatted using the payload on the request param.
  */
-function processRequestSuccessResponse(
-    request: Request,
-    response: Response,
-    next: NextFunction
-): Response {
-    const { status, payload } = request.payload;
+function processRequestSuccessResponse(request: Request, response: Response, next: NextFunction) {
+    const { status, text, payload } = request.payload;
 
-    if (!payload) next();
-
-    return response.status(status).json({ status, payload, error: null });
+    if (payload) {
+        response.status(status).json({ status, text, payload, error: null });
+    } else {
+        next();
+    }
 }
 
 /**
  *
  * This middleware processes, logs and returns all failed responses to the Client.
- * @param {Error} error Error being returned to the front-end from the Error constructor.
  * @param {object} request Express request object. Unused in this function.
  * @param {object} response Express response object
- * @param {object} next Express next function. Unused in this function.
- * @returns {object} Express response object, formatted using the error param.
+ * @param {object} _next Express next function. Unused in this function.
  */
-function processRequestErrorResponse(
-    request: Request,
-    response: Response,
-    next: NextFunction
-): Response {
-    const { status, error } = request.payload;
+function processRequestErrorResponse(request: Request, response: Response, _next: NextFunction) {
+    const { status, text, error } = request.payload;
 
-    return response.status(status).json({
+    response.status(status).json({
         status,
+        text,
         error,
         payload: null,
     });
