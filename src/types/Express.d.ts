@@ -1,7 +1,5 @@
 export {};
 
-type responseBody = string | object;
-
 declare global {
     namespace Express {
         interface Request {
