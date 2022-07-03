@@ -1,8 +1,7 @@
-import RedisClient from '..';
+import { KafkaClient, RedisClient } from '..';
 
-const client: RedisClientType = RedisClient.createOrGetRedisClient() as unknown as RedisClientType;
-const Subscriber = client.duplicate();
-
+const redisClient: RedisClientType = RedisClient.createOrGetClient() as unknown as RedisClientType;
+const Subscriber = redisClient.duplicate();
 Subscriber.connect();
 
 const subscribeToArticle = async () => {
@@ -29,4 +28,31 @@ const handleChannelA = async (message: string) => {
 
 const handleChannelB = async (message: string) => {
     console.log(message);
+};
+
+const kafkaClient: Kafka = KafkaClient.createOrGetClient() as unknown as Kafka;
+const ordersConsumer = kafkaClient.consumer({ groupId: 'orders' });
+ordersConsumer.connect();
+ordersConsumer.subscribe({ topic: 'orderCreated', fromBeginning: true });
+
+const notificationConsumer = kafkaClient.consumer({ groupId: 'notifications' });
+notificationConsumer.connect();
+notificationConsumer.subscribe({ topic: 'orderSuccessful', fromBeginning: true });
+
+const processConsumer = async () => {
+    await ordersConsumer.run({ eachMessage: handleKafkaA });
+
+    await notificationConsumer.run({ eachMessage: handleKafkaA });
+};
+
+const handleKafkaA = async ({ topic, partition, message }: KafkaConsumerEachMessagePayload) => {
+    console.log(`Handling a new message`, {
+        topic,
+        partition,
+        message: {
+            offset: message.offset,
+            headers: message.headers,
+            value: message.value?.toString(),
+        },
+    });
 };

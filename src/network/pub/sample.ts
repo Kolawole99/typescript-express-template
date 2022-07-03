@@ -1,21 +1,4 @@
-import RedisClient from '..';
-
-// function asyncProcessEvent(name: string): Promise<string> {
-//     /**
-//      * call ServiceB to run some different business logic
-//      */
-//     let snsClient = new AWS.SNS();
-//     let params = {
-//         Message: JSON.stringify({
-//             event: 'service-a-event',
-//         }),
-//         TopicArn: 'our-sns-topic-message-broker',
-//     };
-
-//     return snsClient.publish(params).then((response) => {
-//         return response.MessageId;
-//     });
-// }
+import { KafkaClient, RedisClient } from '..';
 
 const publishArticleToRedis = async () => {
     const article = {
@@ -24,9 +7,27 @@ const publishArticleToRedis = async () => {
         blog: 'Logrocket Blog',
     };
 
-    const client: RedisClientType = (await RedisClient.createOrGetRedisClient()) as RedisClientType;
-    const Publisher = client.duplicate();
+    const redisClient: RedisClientType = (await RedisClient.createOrGetClient()) as RedisClientType;
+    const Publisher = redisClient.duplicate();
     await Publisher.connect();
 
     await Publisher.publish('article', JSON.stringify(article));
+};
+
+const processProducer = async () => {
+    const msg = JSON.stringify({ customerId: 1, orderId: 1 });
+
+    const kafkaClient: Kafka = (await KafkaClient.createOrGetClient()) as Kafka;
+    const producer = kafkaClient.producer();
+    await producer.connect();
+
+    await producer.send({
+        topic: 'orderCreated',
+        messages: [{ value: msg }],
+    });
+
+    await producer.send({
+        topic: 'orderSuccessful',
+        messages: [{ value: msg }],
+    });
 };
