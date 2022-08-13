@@ -178,8 +178,9 @@ function handleSuccess() {}
 
 export default processResponse;
 export {
+    /** Base error class */
     ExtendedError,
-    //
+    /** App HTTP custom errors */
     BadRequestError,
     UnauthorizedError,
     ForbiddenError,
@@ -199,6 +200,6 @@ export {
     BadGatewayError,
     ServiceUnavailableError,
     HTTPVersionNotSupportedError,
-    //
+    /** App database error */
     AppControllerError,
 };
