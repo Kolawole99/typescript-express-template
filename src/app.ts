@@ -1,15 +1,34 @@
-import express from 'express';
-
+import { Express } from './utilities/PackageWrapper';
 import ApplicationRoutes from './routes/index';
+import Constants from './utilities/Constants';
 
 const { NODE_ENV, PORT, APP_NAME } = process.env;
 
-const app = express();
+const app = Express();
 
-app.use(express.json({ limit: '5mb' }));
-app.use(express.urlencoded({ extended: true, limit: '5mb', parameterLimit: 200 }));
+/** Setup the application middlewares */
+app.use(
+    Express.json({
+        limit: Constants.RequestMaxByteSize,
+    })
+);
+app.use(
+    Express.urlencoded({
+        extended: true,
+        limit: Constants.RequestMaxByteSize,
+        parameterLimit: 200,
+    })
+);
+
+/** Setup the application credentials  */
+/** Setup observability in the application  */
+/** Setup database connection  */
+/** Setup models and controllers  */
+
+/** Setup application routing */
 app.use('/', ApplicationRoutes);
 
+/** Setup application server */
 const APP_PORT: number = parseInt(<string>PORT, 10);
 app.listen(APP_PORT, () => {
     if (NODE_ENV === 'development') {

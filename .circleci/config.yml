@@ -1,0 +1,133 @@
+version: 2.1
+
+orbs:
+  build: adcd/build-orb@0.0.30
+  slack: circleci/slack@4.4.4
+
+parameters:
+  action:
+    type: enum
+    enum: [build, deploy]
+    default: build
+  environment:
+    description: The target environment for deployment. Must be one of "fusion", "qa", "production".
+    type: enum
+    enum: [fusion, qa, production]
+    default: fusion
+  build_tag:
+    type: string
+    default: ""
+    description: "Build Tag (e.g. core_build_0123456789abcdef0123456789abcdef)."
+  scope:
+    type: string
+    default: ""
+    description: "Scope - An object indicating what to deploy. Valid keys are 'service', 'task','lambda', or 'deployGroup'. Values are the name of the resource. Example: 'task:MyTaskName'. If omitted, the entire component is deployed. Can deploy multiple objects separating each key:value pair by space. Example: 'task:MyTaskName lambda:MyLambdaName'. The entire component can also be deployed by specifying a scope of 'deployAll:true'."
+
+jobs:
+  build:
+    machine:
+      image: ubuntu-2004:202107-02
+    steps:
+      - checkout
+      - build/full_build:
+          component: yorkie
+      - build/package_lambda:
+          component: yorkie
+          directory: "."
+          filename: Lambdas.zip
+          source_files: "apps/lambdas config lib node_modules"
+      - store_test_results:
+          path: docker-test-output
+      - store_artifacts:
+          path: docker-test-output
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+
+workflows:
+  build-and-deploy:
+    when:
+      equal: [ build, << pipeline.parameters.action >> ]
+    jobs:
+      - build:
+          context:
+            - base-build-context
+            - slack-secrets
+      - build/auto_deploy_component:
+          name: pr-auto-deploy
+          environment: fusion
+          limit-to-current-branch: "true"
+          context:
+            - dev-deploy-context
+            - slack-secrets
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: master
+      - build/auto_deploy_component:
+          name: fusion-auto-deploy
+          environment: fusion
+          job: fusion-auto-deploy
+          context:
+            - dev-deploy-context
+            - slack-secrets
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+      - build/auto_deploy_component:
+          name: qa-auto-deploy
+          environment: qa
+          job: qa-auto-deploy
+          context:
+            - dev-deploy-context
+            - slack-secrets
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+      - build/cleanup_temporary_stack:
+          name: fusion-cleanup-temporary-stack
+          environment: fusion
+          context:
+            - dev-deploy-context
+            - slack-secrets
+          filters:
+            branches:
+              only: master
+
+  adcd-dev-deploy:
+    when:
+      and:
+        - equal: [ deploy, << pipeline.parameters.action >> ]
+        - or:
+            - equal: [ fusion, << pipeline.parameters.environment >> ]
+            - equal: [ qa, << pipeline.parameters.environment >> ]
+    jobs:
+      - build/manually_deploy_component:
+          environment: << pipeline.parameters.environment >>
+          build_tag: << pipeline.parameters.build_tag >>
+          scope: << pipeline.parameters.scope >>
+          context:
+            - dev-deploy-context
+            - slack-secrets
+
+  adcd-production-deploy:
+    when:
+      and:
+        - equal: [ deploy, << pipeline.parameters.action >> ]
+        - equal: [ production, << pipeline.parameters.environment >> ]
+    jobs:
+      - build/manually_deploy_component:
+          environment: << pipeline.parameters.environment >>
+          build_tag: << pipeline.parameters.build_tag >>
+          scope: << pipeline.parameters.scope >>
+          context:
+            - master-deploy-context
+            - slack-secrets
