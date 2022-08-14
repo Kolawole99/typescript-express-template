@@ -2,9 +2,7 @@
  * This handles all the required Express router configuration for the application.
  * @module ROUTES
  */
-
-import { Router } from 'express';
-
+import { Express } from '../utilities/PackageWrapper';
 import {
     verifyHTTPVersion,
     verifyRequestMethod,
@@ -14,7 +12,7 @@ import {
 } from '../middlewares/http';
 import SampleRouter from './Sample';
 
-const ApplicationRoutes = Router({ strict: true, caseSensitive: true });
+const ApplicationRoutes = Express.Router({ strict: true, caseSensitive: true });
 
 /** Cross Origin Handling */
 ApplicationRoutes.use(verifyHTTPVersion);

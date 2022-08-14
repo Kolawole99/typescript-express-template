@@ -4,6 +4,9 @@ type DatabaseTypesAndEngines = {
 
 export default {
     AllowedMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    AppModels: {
+        MDBSample: 'MDBSample',
+    } as DictionaryKeyStringPair,
     DatabaseTypesAndEngines: {
         NoSQL: {
             CouchDB: 'CouchDB',
@@ -22,6 +25,12 @@ export default {
             SQLite: 'SQLite',
         },
     } as DatabaseTypesAndEngines,
+    Environment: {
+        production: 'production',
+        staging: 'staging',
+        test: 'test',
+        development: 'development',
+    },
     HTTPResponse: {
         Informational: 'Informational',
         Success: 'Success',
@@ -29,5 +38,7 @@ export default {
         ClientError: 'ClientError',
         ServerError: 'ServerError',
     } as DictionaryKeyStringPair,
+    MongooseVersion: '6.4.0', // Minimum Mongoose Version for this project
     RequestMaxByteSize: 5242880, // This is representing (5MB/5,120KB) of data in bytes
+    UNSUPPORTED: 'Not yet Supported',
 };

@@ -1,17 +1,19 @@
 import { Express } from './utilities/PackageWrapper';
 import ApplicationRoutes from './routes/index';
 import Constants from './utilities/Constants';
+import Logger from './utilities/Logging';
 
 const { NODE_ENV, PORT, APP_NAME } = process.env;
 
 const app = Express();
 
-/** Setup the application middlewares */
+/** Setup the application JSON middlewares */
 app.use(
     Express.json({
         limit: Constants.RequestMaxByteSize,
     })
 );
+
 app.use(
     Express.urlencoded({
         extended: true,
@@ -21,14 +23,17 @@ app.use(
 );
 
 /** Setup the application credentials  */
+
 /** Setup observability in the application  */
+app.use(Logger.logRequest());
+
 /** Setup database connection  */
 /** Setup models and controllers  */
 
 /** Setup application routing */
 app.use('/', ApplicationRoutes);
 
-/** Setup application server */
+/** Run application server */
 const APP_PORT: number = parseInt(<string>PORT, 10);
 app.listen(APP_PORT, () => {
     if (NODE_ENV === 'development') {
