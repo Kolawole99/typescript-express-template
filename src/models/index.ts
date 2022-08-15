@@ -19,9 +19,8 @@ class InstantiateMongoDB {
 
     /**
      *
-     * Mongoose opens a connection to MongoDB using the APP_DB_URI environment variable.
-     * This method creates the model schema and verifies that our application
-     * connects to the provide MongoDB instance.
+     * Mongoose opens a connection to MongoDB using the APP_DB_URI parameter which is a MongoDB connection string.
+     * This method creates the model schema and verifies that our application connects to the provided MongoDB instance.
      *
      */
     async openConnection(DB_URL: string) {
@@ -43,7 +42,7 @@ class InstantiateMongoDB {
     /**
      *
      * Recursively loads all model definition files in the mongodb models folder into the app.
-     * @function
+     *
      */
     async loadModels() {
         try {

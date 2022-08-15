@@ -1,6 +1,8 @@
 import { Mongoose } from '../../utilities/PackageWrapper';
+import Constants from '../../utilities/Constants';
 
 const { Schema, model } = Mongoose;
+const { Sample } = Constants.AppModels.MongoDB;
 
 /** This interface is utilized for data consistency and proper validation */
 interface ISample {
@@ -79,6 +81,6 @@ const SampleSchema = new Schema<ISample>({
     arbitrary: Schema.Types.Mixed,
 });
 
-const Sample = model<ISample>('Sample', SampleSchema);
+const SampleModel = model<ISample>(Sample, SampleSchema);
 
-export { ISample, Sample };
+export { ISample, SampleModel as Sample };

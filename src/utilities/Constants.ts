@@ -5,8 +5,10 @@ type DatabaseTypesAndEngines = {
 export default {
     AllowedMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     AppModels: {
-        MDBSample: 'MDBSample',
-    } as DictionaryKeyStringPair,
+        MongoDB: {
+            Sample: 'Sample',
+        },
+    },
     DatabaseTypesAndEngines: {
         NoSQL: {
             CouchDB: 'CouchDB',
