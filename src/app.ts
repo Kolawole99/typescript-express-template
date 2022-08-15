@@ -1,9 +1,10 @@
 import { Express } from './utilities/PackageWrapper';
 import ApplicationRoutes from './routes/index';
 import Constants from './utilities/Constants';
+import { InstantiateMongoDB } from './models/Index';
 import Logger from './utilities/Logging';
 
-const { NODE_ENV, PORT, APP_NAME } = process.env;
+const { PORT, APP_NAME, APP_DB_URI } = process.env;
 
 const app = Express();
 
@@ -13,7 +14,6 @@ app.use(
         limit: Constants.RequestMaxByteSize,
     })
 );
-
 app.use(
     Express.urlencoded({
         extended: true,
@@ -25,10 +25,10 @@ app.use(
 /** Setup the application credentials  */
 
 /** Setup observability in the application  */
-app.use(Logger.logRequest());
+app.use(Logger.logRequest()); // This initializes winston to log all request to the application
 
-/** Setup database connection  */
-/** Setup models and controllers  */
+/** Setup database connection, models and controllers  */
+new InstantiateMongoDB(APP_DB_URI as string);
 
 /** Setup application routing */
 app.use('/', ApplicationRoutes);
@@ -36,9 +36,5 @@ app.use('/', ApplicationRoutes);
 /** Run application server */
 const APP_PORT: number = parseInt(<string>PORT, 10);
 app.listen(APP_PORT, () => {
-    if (NODE_ENV === 'development') {
-        console.log(`🔥 Development Server is running at http://localhost:${APP_PORT} 👍`);
-    } else {
-        console.log(`😃 ${APP_NAME as string} is LIVE on port ${APP_PORT}. 👍`);
-    }
+    console.log(`${APP_NAME as string} is running on port ${APP_PORT}.`);
 });

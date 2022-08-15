@@ -52,9 +52,9 @@ class AppLogger {
 
         const outputFormat = combine(
             uncolorize(),
-            label({ label: `[${APP_NAME}]` }),
+            label({ label: APP_NAME }),
             timestamp({ format: 'YYYY-MM-DD HH:mm:ss:SSS A' }),
-            printf((info) => `${info.timestamp} ${info.label} ${info.level} ${info.message}`)
+            printf((info) => `${info.timestamp} [${info.label}] ${info.level} ${info.message}`)
         );
 
         const appTransport =
