@@ -8,6 +8,7 @@ import { Request, Response, NextFunction } from 'express';
 import Constants from '../utilities/Constants';
 import processResponse, {
     MethodNotAllowedError,
+    NotFoundError,
     HTTPVersionNotSupportedError,
 } from '../utilities/HTTPResponses';
 
@@ -76,13 +77,37 @@ function setupRequest(request: Request, response: Response, next: NextFunction) 
  * @param {object} next Express next function
  */
 function processRequestSuccessResponse(request: Request, response: Response, next: NextFunction) {
-    const { status, text, payload } = request.payload;
+    const { payload } = request;
 
-    if (payload) {
-        response.status(status).json({ status, text, payload, error: null });
+    if (payload && !payload.error) {
+        const { status, text } = payload;
+
+        response.status(status).json({
+            status,
+            text,
+            payload: payload.payload,
+            error: null,
+        });
     } else {
         next();
     }
+}
+
+/**
+ *
+ * This middleware receives, processes and sends to handleError all Services 404 Errors.
+ * @param {object} request Express request object. Unused in this function.
+ * @param {object} _response Express response object. Unused in this function.
+ * @param {object} next Express next function
+ */
+function process404(request: Request, _response: Response, next: NextFunction) {
+    const { payload } = request;
+
+    if (!payload) {
+        request.payload = processResponse(new NotFoundError(Constants.HTTPResponse.ClientError));
+    }
+
+    next();
 }
 
 /**
@@ -108,5 +133,6 @@ export {
     verifyRequestMethod,
     setupRequest,
     processRequestSuccessResponse,
+    process404,
     processRequestErrorResponse,
 };

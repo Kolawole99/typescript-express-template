@@ -8,6 +8,7 @@ import {
     verifyRequestMethod,
     setupRequest,
     processRequestSuccessResponse,
+    process404,
     processRequestErrorResponse,
 } from '../middlewares/http';
 import SampleRouter from './Sample';
@@ -28,6 +29,7 @@ ApplicationRoutes.get('/', (request, _response, next) => {
 });
 ApplicationRoutes.use('/sample', SampleRouter);
 ApplicationRoutes.use(processRequestSuccessResponse);
+ApplicationRoutes.use(process404);
 ApplicationRoutes.use(processRequestErrorResponse);
 
 export default ApplicationRoutes;
