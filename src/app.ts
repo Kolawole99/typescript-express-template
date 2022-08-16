@@ -1,5 +1,5 @@
 import { Express } from './utilities/PackageWrapper';
-import ApplicationRoutes from './routes/index';
+import ApplicationRoutes from './routes/Index';
 import Constants from './utilities/Constants';
 import { InstantiateMongoDB } from './models/Index';
 import Logger from './utilities/Logging';
