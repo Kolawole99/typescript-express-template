@@ -1,4 +1,4 @@
-import { KafkaClient, RedisClient } from '..';
+import { KafkaClient, RedisClient } from '../Index';
 
 const redisClient: RedisClientType = RedisClient.createOrGetClient() as unknown as RedisClientType;
 const Subscriber = redisClient.duplicate();

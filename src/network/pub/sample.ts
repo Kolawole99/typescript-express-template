@@ -1,4 +1,4 @@
-import { KafkaClient, RedisClient } from '..';
+import { KafkaClient, RedisClient } from '../Index';
 
 const publishArticleToRedis = async () => {
     const article = {
