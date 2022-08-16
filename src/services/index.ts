@@ -3,9 +3,6 @@
  * This handles the base logic for all services
  * @module SERVICE:Root
  */
-import { Express } from '../utilities/PackageWrapper';
-
-type Request = Express.Request;
 
 /**
  * This is an abstract method that defines the core component of each services.
@@ -13,9 +10,9 @@ type Request = Express.Request;
  */
 abstract class RootService {
     serviceName!: string;
-    controller!: Controller;
+    controller!: IDBController;
 
-    constructor(controller: Controller) {
+    constructor(controller: IDBController) {
         this.setController(controller);
         this.setServiceName();
     }
@@ -24,7 +21,7 @@ abstract class RootService {
         this.serviceName = this.constructor.name;
     }
 
-    protected setController(Controller: Controller): void {
+    protected setController(Controller: IDBController): void {
         this.controller = Controller;
     }
 
@@ -42,29 +39,29 @@ abstract class RootService {
         return message.replace(/["]+/g, '');
     }
 
-    public abstract createRecord({ request }: { request: Request }): Promise<Request['payload']>;
+    public abstract createRecord({ request }: { request: ERequest }): Promise<ERequest['payload']>;
 
-    public abstract createRecords({ request }: { request: Request }): Promise<Request['payload']>;
+    public abstract createRecords({ request }: { request: ERequest }): Promise<ERequest['payload']>;
 
-    public abstract readRecords({ request }: { request: Request }): Promise<Request['payload']>;
+    public abstract readRecords({ request }: { request: ERequest }): Promise<ERequest['payload']>;
 
-    public abstract readRecord({ request }: { request: Request }): Promise<Request['payload']>;
+    public abstract readRecord({ request }: { request: ERequest }): Promise<ERequest['payload']>;
 
     public abstract aggregateRecords({
         request,
     }: {
-        request: Request;
-    }): Promise<Request['payload']>;
+        request: ERequest;
+    }): Promise<ERequest['payload']>;
 
-    public abstract countRecords({ request }: { request: Request }): Promise<Request['payload']>;
+    public abstract countRecords({ request }: { request: ERequest }): Promise<ERequest['payload']>;
 
-    public abstract updateRecord({ request }: { request: Request }): Promise<Request['payload']>;
+    public abstract updateRecord({ request }: { request: ERequest }): Promise<ERequest['payload']>;
 
-    public abstract updateRecords({ request }: { request: Request }): Promise<Request['payload']>;
+    public abstract updateRecords({ request }: { request: ERequest }): Promise<ERequest['payload']>;
 
-    public abstract deleteRecord({ request }: { request: Request }): Promise<Request['payload']>;
+    public abstract deleteRecord({ request }: { request: ERequest }): Promise<ERequest['payload']>;
 
-    public abstract deleteRecords({ request }: { request: Request }): Promise<Request['payload']>;
+    public abstract deleteRecords({ request }: { request: ERequest }): Promise<ERequest['payload']>;
 }
 
 export default RootService;

@@ -1,4 +1,4 @@
-import { Express, Kafka, Redis } from '../utilities/PackageWrapper';
+import { Express, Kafka, Mongoose, Redis } from '../utilities/PackageWrapper';
 
 declare global {
     type ArrayOfStrings = Array<string>;
@@ -35,18 +35,20 @@ declare global {
     };
     interface KafkaTopicConfiguration extends Kafka.ITopicConfig {}
 
+    type MongooseModel = typeof Mongoose.Model;
+
     /** Redis typings */
     type RedisClientType = ReturnType<typeof Redis.createClient>;
     type RedisClientOptions = Parameters<typeof Redis.createClient>[0];
 
     /** Express typings */
-    type NextFunction = Express.NextFunction;
-    type Response = Express.Response;
-    type Request = Express.Request;
+    type ENextFunction = Express.NextFunction;
+    type EResponse = Express.Response;
+    type ERequest = Express.Request;
     type RequestHandler = {
-        request: Request;
-        response: Response;
-        next: NextFunction;
+        request: ERequest;
+        response: EResponse;
+        next: ENextFunction;
     };
 
     type responseBody = string | object;

@@ -3,8 +3,6 @@
  * This handles requests, responses and errors generically from the Express Routing middleware.
  * @module MIDDLEWARE:HTTP
  */
-import { Request, Response, NextFunction } from 'express';
-
 import Constants from '../utilities/Constants';
 import processResponse, {
     MethodNotAllowedError,
@@ -19,7 +17,7 @@ import processResponse, {
  * @param {object} response Express response object
  * @param {object} next Express next function
  */
-function verifyHTTPVersion(request: Request, response: Response, next: NextFunction) {
+function verifyHTTPVersion(request: ERequest, response: EResponse, next: ENextFunction) {
     if (Number(request.httpVersion) < 1.1) {
         request.payload = processResponse(
             new HTTPVersionNotSupportedError(Constants.HTTPResponse.ServerError)
@@ -38,7 +36,7 @@ function verifyHTTPVersion(request: Request, response: Response, next: NextFunct
  * @param {object} response Express response object
  * @param {object} next Express next function
  */
-function verifyRequestMethod(request: Request, response: Response, next: NextFunction) {
+function verifyRequestMethod(request: ERequest, response: EResponse, next: ENextFunction) {
     if (Constants.AllowedMethods.includes(request.method)) {
         next();
     } else {
@@ -57,7 +55,7 @@ function verifyRequestMethod(request: Request, response: Response, next: NextFun
  * @param {object} response Express response object
  * @param {object} next Express next function
  */
-function setupRequest(request: Request, response: Response, next: NextFunction) {
+function setupRequest(request: ERequest, response: EResponse, next: ENextFunction) {
     request.headers['access-control-allow-origin'] = '*';
     request.headers['access-control-allow-headers'] = '*';
 
@@ -76,7 +74,11 @@ function setupRequest(request: Request, response: Response, next: NextFunction) 
  * @param {object} response Express response object
  * @param {object} next Express next function
  */
-function processRequestSuccessResponse(request: Request, response: Response, next: NextFunction) {
+function processRequestSuccessResponse(
+    request: ERequest,
+    response: EResponse,
+    next: ENextFunction
+) {
     const { payload } = request;
 
     if (payload && !payload.error) {
@@ -100,7 +102,7 @@ function processRequestSuccessResponse(request: Request, response: Response, nex
  * @param {object} _response Express response object. Unused in this function.
  * @param {object} next Express next function
  */
-function process404(request: Request, _response: Response, next: NextFunction) {
+function process404(request: ERequest, _response: EResponse, next: ENextFunction) {
     const { payload } = request;
 
     if (!payload) {
@@ -117,7 +119,7 @@ function process404(request: Request, _response: Response, next: NextFunction) {
  * @param {object} response Express response object
  * @param {object} _next Express next function. Unused in this function.
  */
-function processRequestErrorResponse(request: Request, response: Response, _next: NextFunction) {
+function processRequestErrorResponse(request: ERequest, response: EResponse, _next: ENextFunction) {
     const { status, text, error } = request.payload;
 
     response.status(status).json({
