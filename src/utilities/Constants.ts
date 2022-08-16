@@ -42,7 +42,8 @@ export default {
         ClientError: 'ClientError',
         ServerError: 'ServerError',
     } as DictionaryKeyStringPair,
-    MongooseVersion: '6.4.0', // Minimum Mongoose Version for this project
+    MongoDBVersion: '6.0.0', // Minimum MongoDB Version for this project
+    MongooseVersion: '6.5.0', // Minimum Mongoose Version for this project
     RequestMaxByteSize: 5242880, // This is representing (5MB/5,120KB) of data in bytes
     UNSUPPORTED: 'Not yet Supported',
 };

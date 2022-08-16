@@ -13,7 +13,7 @@
     "glob": "^8.0.3",
     "joi": "^17.6.0",
     "kafkajs": "^2.1.0",
-    "mongoose": "^6.4.0",
+    "mongoose": "^6.5.0",
     "morgan": "^1.10.0",
     "redis": "^4.1.0",
     "sequelize": "^6.21.0",

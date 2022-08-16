@@ -9,7 +9,7 @@ import { Mongoose } from '../utilities/PackageWrapper';
 import { parseObject } from '../utilities/Utils';
 
 class MongoDBController implements IDBController {
-    model: any;
+    model!: MongooseModel;
 
     constructor(modelName: string) {
         this.init(modelName);
@@ -17,22 +17,14 @@ class MongoDBController implements IDBController {
 
     private init(modelName: string): void {
         try {
-            if (Mongoose.version < Constants.MongooseVersion) {
-                throw new Error(`Mongoose version ${Mongoose.version} is not supported.`);
-            }
-
             if (!modelName || !Constants.AppModels.MongoDB[modelName]) {
                 throw new Error('Cannot Instantiate, as this is an invalid application model name');
             }
 
-            this.setModel(modelName);
+            this.model = Mongoose.model(modelName);
         } catch (error) {
             console.log(error);
         }
-    }
-
-    private setModel(modelName: string) {
-        this.model = Mongoose.model(modelName);
     }
 
     public async createRecord(payload: any): Promise<any> {}
@@ -41,15 +33,37 @@ class MongoDBController implements IDBController {
 
     public async readRecord(data: object): Promise<object | unknown> {
         try {
-            const filter = this.model.sanitizeFilter(data);
+            const record = await this.model.findOne(data).setOptions({ sanitizeFilter: true });
 
-            return parseObject(await this.model.findOne(filter));
+            if (record) {
+                return parseObject(record);
+            }
         } catch (error) {
             return error;
         }
     }
 
-    public async readRecords(payload: any): Promise<any> {}
+    public async readRecords(payload: {
+        data: object;
+        skip: number;
+        limit: number;
+    }): Promise<number | unknown> {
+        try {
+            const { data, skip, limit } = payload;
+
+            const record = await this.model
+                .find(data)
+                .setOptions({ sanitizeFilter: true })
+                .skip(skip)
+                .limit(limit);
+
+            if (record) {
+                return parseObject(record);
+            }
+        } catch (error) {
+            return error;
+        }
+    }
 
     public async aggregateRecord(payload: any): Promise<any> {}
 
@@ -62,7 +76,8 @@ class MongoDBController implements IDBController {
             const { data, skip, limit } = payload;
 
             return await this.model
-                .countDocuments({ ...data })
+                .countDocuments(data)
+                .setOptions({ sanitizeFilter: true })
                 .skip(skip)
                 .limit(limit);
         } catch (error) {
