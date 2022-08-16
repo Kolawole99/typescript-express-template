@@ -1,5 +1,4 @@
 import { Express } from './utilities/PackageWrapper';
-import ApplicationRoutes from './routes/Index';
 import Constants from './utilities/Constants';
 import { InstantiateMongoDB } from './models/Index';
 import Logger from './utilities/Logging';
@@ -28,9 +27,12 @@ app.use(
 app.use(Logger.logRequest()); // This initializes winston to log all request coming into the application
 
 /** Setup database connection, models and controllers  */
-new InstantiateMongoDB(APP_DB_URI as string);
+const MongoDB = new InstantiateMongoDB();
+MongoDB.openConnection(APP_DB_URI as string);
+MongoDB.loadModels();
 
 /** Setup application routing */
+import ApplicationRoutes from './routes/Index';
 app.use('/', ApplicationRoutes);
 
 /** Run application server */

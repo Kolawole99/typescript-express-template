@@ -7,15 +7,7 @@ import { resolve } from 'path';
 import { Glob, Mongoose } from '../utilities/PackageWrapper';
 
 class InstantiateMongoDB {
-    constructor(DB_URL: string) {
-        this.init(DB_URL);
-    }
-
-    async init(DB_URL: string) {
-        await this.openConnection(DB_URL);
-
-        await this.loadModels();
-    }
+    constructor() {}
 
     /**
      *
@@ -51,7 +43,7 @@ class InstantiateMongoDB {
             const basePath = resolve(__dirname, '../models/mongodb');
             const files = Glob.sync('*.js', { cwd: basePath });
 
-            console.log('Loading MongoDB models');
+            console.log('Initializing MongoDB models');
 
             files.forEach((file: string) => {
                 require(resolve(basePath, file));

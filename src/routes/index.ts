@@ -10,7 +10,7 @@ import {
     processRequestSuccessResponse,
     process404,
     processRequestErrorResponse,
-} from '../middlewares/http';
+} from '../middlewares/HTTP';
 import SampleRouter from './Sample';
 
 const ApplicationRoutes = Express.Router({ strict: true, caseSensitive: true });
