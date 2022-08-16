@@ -1,4 +1,3 @@
-import BaseController from '../controllers/index';
 import { Express, Kafka, Redis } from '../utilities/PackageWrapper';
 
 declare global {

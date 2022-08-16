@@ -1,81 +1,53 @@
-import Constants from '../utilities/Constants';
 import MongoDBController from './MongoDBController';
-import OracleController from './OracleController';
-import RedisController from './RedisController';
 import SQLNoOracleController from './SQLNoOracleController';
+
+import Constants from '../utilities/Constants';
+import { verifyObject } from '../utilities/Utils';
 
 class BaseController {
     databaseType: string;
-    engine: string;
+    databaseName: string;
 
-    constructor({ databaseType, engine }: { databaseType: string; engine: string }) {
+    constructor({ databaseType, databaseName }: { databaseType: string; databaseName: string }) {
         this.databaseType = databaseType;
-        this.engine = engine;
-
-        this.establishDatabaseConnection();
+        this.databaseName = databaseName;
     }
 
-    public establishDatabaseConnection(): any {
-        try {
-            console.log('Attempting to select database type: ', this.databaseType);
-            const database = this.selectDatabase();
+    public selectDatabase(): IDBControllerConstructor {
+        const selectedDatabaseType = Constants.DatabaseTypesAndNames[this.databaseType];
 
-            console.log('Selected database: ', database);
-            this.setupDatabase();
-
-            console.log('Attempting database connection');
-            return this.connectToDatabase();
-        } catch (error) {
-            // Replace with observability
-            console.log(error);
-        }
-    }
-
-    private selectDatabase(): any {
-        const selectedEngine = Constants.DatabaseTypesAndEngines[this.databaseType];
-        if (
-            selectedEngine && // Verify database type presence
-            Object.keys(selectedEngine).length === 0 && // Verify database type content
-            Object.getPrototypeOf(selectedEngine) === Object.prototype // Verify object type
-        ) {
+        if (!verifyObject(selectedDatabaseType)) {
             throw new Error(`${this.databaseType} is not a valid database type`);
         }
 
-        console.log('Attempting to select database engine: ', this.engine);
+        console.log('Attempting to select database engine: ', this.databaseName);
 
-        const collectionDatabase = selectedEngine[this.engine];
-        if (!collectionDatabase) {
-            throw new Error(`${this.engine} is not a supported database.`);
+        const selectedDatabase = selectedDatabaseType[this.databaseName];
+
+        if (!selectedDatabase) {
+            throw new Error(`${this.databaseName} is not a supported database.`);
         }
 
-        console.log('Attempting to select database Controller: ', collectionDatabase);
+        console.log('Attempting to select database Controller: ', selectedDatabase);
 
-        const unsupported = 'Not yet Supported';
         const DatabaseControllerMap = {
-            [Constants.DatabaseTypesAndEngines.NoSQL.CouchDB]: unsupported,
-            [Constants.DatabaseTypesAndEngines.NoSQL.ElasticSearch]: unsupported,
-            [Constants.DatabaseTypesAndEngines.NoSQL.Mongo]: MongoDBController,
-            [Constants.DatabaseTypesAndEngines.NoSQL.Redis]: RedisController,
-            [Constants.DatabaseTypesAndEngines.SQL.AmazonRedshift]: SQLNoOracleController,
-            [Constants.DatabaseTypesAndEngines.SQL.MariaDB]: SQLNoOracleController,
-            [Constants.DatabaseTypesAndEngines.SQL.MsSQL]: SQLNoOracleController,
-            [Constants.DatabaseTypesAndEngines.SQL.MySQL]: SQLNoOracleController,
-            [Constants.DatabaseTypesAndEngines.SQL.Oracle]: OracleController,
-            [Constants.DatabaseTypesAndEngines.SQL.PostgreSQL]: SQLNoOracleController,
-            [Constants.DatabaseTypesAndEngines.SQL.SQLite]: SQLNoOracleController,
+            [Constants.DatabaseTypesAndNames.NoSQL.MongoDB]: MongoDBController,
+            [Constants.DatabaseTypesAndNames.SQL.AmazonRedshift]: SQLNoOracleController,
+            [Constants.DatabaseTypesAndNames.SQL.MariaDB]: SQLNoOracleController,
+            [Constants.DatabaseTypesAndNames.SQL.MsSQL]: SQLNoOracleController,
+            [Constants.DatabaseTypesAndNames.SQL.MySQL]: SQLNoOracleController,
+            [Constants.DatabaseTypesAndNames.SQL.PostgreSQL]: SQLNoOracleController,
+            [Constants.DatabaseTypesAndNames.SQL.SQLite]: SQLNoOracleController,
         };
+        const Controller = DatabaseControllerMap[selectedDatabase];
 
-        return DatabaseControllerMap[collectionDatabase];
-    }
+        if (!Controller) {
+            throw new Error(Constants.UNSUPPORTED);
+        }
 
-    private setupDatabase() {
-        console.log('Mapping database credentials to controller');
-    }
+        console.log('Successfully selected controller for:', selectedDatabase);
 
-    private connectToDatabase() {
-        console.log('Connected to database');
-
-        console.log('Failure to connect to database');
+        return Controller;
     }
 }
 
