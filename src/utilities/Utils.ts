@@ -16,7 +16,7 @@ function verifyString(message: string) {
 function verifyObject(body: object) {
     if (
         body && // Verify body presence
-        Object.keys(body).length === 0 && // Verify body object type content
+        Object.keys(body).length !== 0 && // Verify body object type content
         Object.getPrototypeOf(body) === Object.prototype // Verify object type
     ) {
         return true;

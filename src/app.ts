@@ -25,7 +25,7 @@ app.use(
 /** Setup the application credentials  */
 
 /** Setup observability in the application  */
-app.use(Logger.logRequest()); // This initializes winston to log all request to the application
+app.use(Logger.logRequest()); // This initializes winston to log all request coming into the application
 
 /** Setup database connection, models and controllers  */
 new InstantiateMongoDB(APP_DB_URI as string);

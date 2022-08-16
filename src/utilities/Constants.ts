@@ -7,13 +7,15 @@ export default {
     AppModels: {
         MongoDB: {
             Sample: 'Sample',
-        },
+        } as DictionaryKeyStringPair,
+        MySQL: {} as DictionaryKeyStringPair,
+        PostgreSQL: {} as DictionaryKeyStringPair,
     },
-    DatabaseTypesAndEngines: {
+    DatabaseTypesAndNames: {
         NoSQL: {
             CouchDB: 'CouchDB',
             ElasticSearch: 'ElasticSearch',
-            Mongo: 'MongoDB',
+            MongoDB: 'MongoDB',
             Redis: 'Redis',
         },
         SQL: {
