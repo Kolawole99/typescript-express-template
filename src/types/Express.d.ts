@@ -5,8 +5,9 @@ declare global {
         interface Request {
             payload: {
                 status: number;
-                error?: responseBody;
-                payload?: responseBody;
+                text: string;
+                error?: StringObjectType;
+                payload?: StringObjectType;
             };
         }
     }

@@ -145,11 +145,16 @@ class HTTPVersionNotSupportedError extends ExtendedError {}
  */
 class AppControllerError extends ExtendedError {}
 
-function processResponse(errorClass: ExtendedError): any {
+function processResponse(errorClass: ExtendedError): {
+    status: number;
+    text: string;
+    error?: StringObjectType;
+    payload?: StringObjectType;
+} {
     const { message, type, name } = errorClass;
 
-    const errorSpecificName = name.split('Error')[0];
-    const { code, text } = HTTPResponseTypes[type][errorSpecificName];
+    const errorSpecificName = name.split('Error')[0] || 'InternalServerError';
+    const { code, text } = HTTPResponseTypes[type || 'ServerError'][errorSpecificName];
 
     const payload = message ? message : text;
 
@@ -173,6 +178,9 @@ function handleSuccess() {}
 
 export default processResponse;
 export {
+    /** Base error class */
+    ExtendedError,
+    /** App HTTP custom errors */
     BadRequestError,
     UnauthorizedError,
     ForbiddenError,
@@ -192,6 +200,6 @@ export {
     BadGatewayError,
     ServiceUnavailableError,
     HTTPVersionNotSupportedError,
-    //
+    /** App database error */
     AppControllerError,
 };

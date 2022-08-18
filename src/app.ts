@@ -1,20 +1,42 @@
-import express from 'express';
+import { Express } from './utilities/PackageWrapper';
+import Constants from './utilities/Constants';
+import { InstantiateMongoDB } from './models/Index';
+import Logger from './utilities/Logging';
 
-import ApplicationRoutes from './routes/index';
+const { PORT, APP_NAME, APP_DB_URI } = process.env;
 
-const { NODE_ENV, PORT, APP_NAME } = process.env;
+const app = Express();
 
-const app = express();
+/** Setup the application JSON middlewares */
+app.use(
+    Express.json({
+        limit: Constants.RequestMaxByteSize,
+    })
+);
+app.use(
+    Express.urlencoded({
+        extended: true,
+        limit: Constants.RequestMaxByteSize,
+        parameterLimit: 200,
+    })
+);
 
-app.use(express.json({ limit: '5mb' }));
-app.use(express.urlencoded({ extended: true, limit: '5mb', parameterLimit: 200 }));
+/** Setup the application credentials  */
+
+/** Setup observability in the application  */
+app.use(Logger.logRequest()); // This initializes winston to log all request coming into the application
+
+/** Setup database connection, models and controllers  */
+const MongoDB = new InstantiateMongoDB();
+MongoDB.openConnection(APP_DB_URI as string);
+MongoDB.loadModels();
+
+/** Setup application routing */
+import ApplicationRoutes from './routes/Index';
 app.use('/', ApplicationRoutes);
 
+/** Run application server */
 const APP_PORT: number = parseInt(<string>PORT, 10);
 app.listen(APP_PORT, () => {
-    if (NODE_ENV === 'development') {
-        console.log(`🔥 Development Server is running at http://localhost:${APP_PORT} 👍`);
-    } else {
-        console.log(`😃 ${APP_NAME as string} is LIVE on port ${APP_PORT}. 👍`);
-    }
+    console.log(`${APP_NAME as string} is running on port ${APP_PORT}.`);
 });
