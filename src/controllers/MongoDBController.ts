@@ -32,60 +32,57 @@ class MongoDBController implements IDBController {
         }
     }
 
-    private mongoErrorMessage({ error }: { error: Error }) {
-        // const { name, code, keyPattern } = error;
+    /** Helper method to process all class errors from Mongoose or MongoDB */
+    private processError(error: any): { name: string; failed: boolean; error: string } {
+        let message;
 
-        // if (name === 'MongoServerError' && code && code === 11000) {
-        //     const keys = Object.keys(keyPattern).join(',');
+        const { name, code, keyPattern } = error;
 
-        //     return `Entry already exist for ${keys} `;
-        // } else if (name === 'ValidationError') {
-        //     if (error.errors[Object.keys(error.errors)[0]].properties) {
-        //         const { type, path } = error.errors[Object.keys(error.errors)[0]].properties;
+        if (name === 'MongoServerError' && code && code === 11000) {
+            const keys = Object.keys(keyPattern).join(',');
 
-        //         return `Validation failed for field ${path} (${type}) `;
-        //     }
-        //     const { kind, value, path } = error.errors[Object.keys(error.errors)[0]];
+            message = `Entry already exist for ${keys} `;
+        } else if (name === 'ValidationError') {
+            if (error.errors[Object.keys(error.errors)[0]].properties) {
+                const { type, path } = error.errors[Object.keys(error.errors)[0]].properties;
 
-        //     return `Validation failed for field ${path} (${value}) instead of ${kind} `;
-        // }
+                message = `Validation failed for field ${path} (${type}) `;
+            }
 
-        return 'Validation failed';
-    }
+            const { kind, value, path } = error.errors[Object.keys(error.errors)[0]];
 
-    /**
-     * Local method to process all class errors.
-     */
-    private processError(error: Error) {
-        const message = this.mongoErrorMessage({ error }) || error.message;
+            message = `Validation failed for field ${path} (${value}) instead of ${kind} `;
+        } else {
+            message = `Controller Error:: ${error.message}`;
+        }
 
-        return { failed: true, error: message };
+        return { name, failed: true, error: message };
     }
 
     /** This method accepts an object and uses it to creates a record */
-    public async createRecord(data: object): Promise<any> {
+    public async createRecord(data: object): Promise<object> {
         try {
             const record = await this.model.create(data);
 
             return parseObject(record);
         } catch (error) {
-            return error;
+            return this.processError(error);
         }
     }
 
     /** This method accepts an array of objects and uses it to creates multiple records */
-    public async createRecords(data: ArrayOfObjects): Promise<any> {
+    public async createRecords(data: ArrayOfObjects): Promise<object> {
         try {
             const record = await this.model.create(data);
 
             return parseObject(record);
         } catch (error) {
-            return error;
+            return this.processError(error);
         }
     }
 
     /** This method fetches the first document matching the provided filter */
-    public async readRecord(data: object): Promise<object | unknown> {
+    public async readRecord(data: object): Promise<object> {
         try {
             const record: object = await this.model
                 .findOne(data)
@@ -93,7 +90,7 @@ class MongoDBController implements IDBController {
 
             return parseObject(record);
         } catch (error) {
-            return error;
+            return this.processError(error);
         }
     }
 
@@ -104,7 +101,7 @@ class MongoDBController implements IDBController {
         sortOptions?: string;
         skip?: number;
         limit?: number;
-    }): Promise<object | unknown> {
+    }): Promise<object> {
         try {
             const {
                 data,
@@ -123,34 +120,34 @@ class MongoDBController implements IDBController {
 
             return parseObject(record);
         } catch (error) {
-            return error;
+            return this.processError(error);
         }
     }
 
     /** This method counts all the document in this collection that matches the provided filter */
-    public async countRecordsByFilter(data: object): Promise<object | unknown> {
+    public async countRecordsByFilter(data: object): Promise<object> {
         try {
             return {
                 count: await this.model.countDocuments(data).setOptions({ sanitizeFilter: true }),
             };
         } catch (error) {
-            return error;
+            return this.processError(error);
         }
     }
 
     /** This method counts all the document in this collection. This does not accept a filter */
-    public async countAllModelRecords(): Promise<object | unknown> {
+    public async countAllModelRecords(): Promise<object> {
         try {
             return {
                 count: await this.model.estimatedDocumentCount(),
             };
         } catch (error) {
-            return error;
+            return this.processError(error);
         }
     }
 
     /** This method updates the first document matching the provided filter */
-    public async updateRecord(payload: { conditions: object; dataToSet: object }): Promise<any> {
+    public async updateRecord(payload: { conditions: object; dataToSet: object }): Promise<object> {
         try {
             const { conditions, dataToSet } = payload;
 
@@ -166,12 +163,15 @@ class MongoDBController implements IDBController {
 
             return parseObject(result);
         } catch (error) {
-            return error;
+            return this.processError(error);
         }
     }
 
     /** This method updates all the documents matching the provided filter */
-    public async updateRecords(payload: { conditions: object; dataToSet: object }): Promise<any> {
+    public async updateRecords(payload: {
+        conditions: object;
+        dataToSet: object;
+    }): Promise<object> {
         try {
             const { conditions, dataToSet } = payload;
 
@@ -187,7 +187,7 @@ class MongoDBController implements IDBController {
 
             return parseObject(result);
         } catch (error) {
-            return error;
+            return this.processError(error);
         }
     }
 
@@ -198,7 +198,7 @@ class MongoDBController implements IDBController {
     public async updateRecordByReplacing(payload: {
         conditions: object;
         dataToSet: object;
-    }): Promise<any> {
+    }): Promise<object> {
         try {
             const { conditions, dataToSet } = payload;
 
@@ -214,7 +214,7 @@ class MongoDBController implements IDBController {
 
             return parseObject(result);
         } catch (error) {
-            return error;
+            return this.processError(error);
         }
     }
 
@@ -224,7 +224,7 @@ class MongoDBController implements IDBController {
      * This is a form of in application Trash where you can send documents to.
      * We advise you use this always for easy data restoration.
      */
-    public async softDeleteRecord(conditions: object): Promise<any> {
+    public async softDeleteRecord(conditions: object): Promise<object> {
         try {
             const result = await this.model
                 .updateOne(
@@ -239,7 +239,7 @@ class MongoDBController implements IDBController {
 
             return parseObject(result);
         } catch (error) {
-            return error;
+            return this.processError(error);
         }
     }
 
@@ -249,7 +249,7 @@ class MongoDBController implements IDBController {
      * This is a form of in application Trash where you can send documents to.
      * We advise you use this always for easy data restoration.
      */
-    public async softDeleteRecords(conditions: object): Promise<any> {
+    public async softDeleteRecords(conditions: object): Promise<object> {
         try {
             const result = await this.model
                 .updateMany(
@@ -264,7 +264,7 @@ class MongoDBController implements IDBController {
 
             return parseObject(result);
         } catch (error) {
-            return error;
+            return this.processError(error);
         }
     }
 
@@ -279,7 +279,7 @@ class MongoDBController implements IDBController {
      * This is a clearing of the application Trash. Data reaches the end of life here.
      * End users can no longer access this data at this stage although it is still in the database.
      */
-    public async hardDeleteRecord(conditions: object): Promise<any> {
+    public async hardDeleteRecord(conditions: object): Promise<object> {
         try {
             const result = await this.model
                 .updateOne(
@@ -294,7 +294,7 @@ class MongoDBController implements IDBController {
 
             return parseObject(result);
         } catch (error) {
-            return error;
+            return this.processError(error);
         }
     }
 
@@ -309,7 +309,7 @@ class MongoDBController implements IDBController {
      * This is a clearing of the application Trash. Data reaches the end of life here.
      * End users can no longer access this data at this stage although it is still in the database.
      */
-    public async hardDeleteRecords(conditions: object): Promise<any> {
+    public async hardDeleteRecords(conditions: object): Promise<object> {
         try {
             const result = await this.model
                 .updateMany(
@@ -324,7 +324,7 @@ class MongoDBController implements IDBController {
 
             return parseObject(result);
         } catch (error) {
-            return error;
+            return this.processError(error);
         }
     }
 
@@ -335,7 +335,7 @@ class MongoDBController implements IDBController {
      * You better know what you are doing before you use this method, as why would you want to dig up the dead.
      * In fact, you are advised not to use this method at all unless the world is coming to an end.
      */
-    public async totalHardDeleteRecord(conditions: object): Promise<any> {
+    public async totalHardDeleteRecord(conditions: object): Promise<object> {
         try {
             const result = await this.model
                 .deleteOne(conditions)
@@ -343,7 +343,7 @@ class MongoDBController implements IDBController {
 
             return parseObject(result);
         } catch (error) {
-            return error;
+            return this.processError(error);
         }
     }
 
@@ -354,7 +354,7 @@ class MongoDBController implements IDBController {
      * You better know what you are doing before you use this method, as why would you want to dig up the dead.
      * In fact, you are advised not to use this method at all unless the world is coming to an end.
      */
-    public async totalHardDeleteRecords(conditions: object): Promise<any> {
+    public async totalHardDeleteRecords(conditions: object): Promise<object> {
         try {
             const result = await this.model
                 .deleteMany(conditions)
@@ -362,7 +362,7 @@ class MongoDBController implements IDBController {
 
             return parseObject(result);
         } catch (error) {
-            return error;
+            return this.processError(error);
         }
     }
 }
